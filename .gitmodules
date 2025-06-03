@@ -1,0 +1,3 @@
+[submodule ".contents-test/CaC-Generated-Small"]
+	path = .contents-test/CaC-Generated-Small
+	url = https://github.com/dylanlerch/CaC-Generated-Small.git
