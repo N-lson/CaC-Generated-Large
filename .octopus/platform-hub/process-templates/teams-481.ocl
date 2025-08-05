@@ -1,0 +1,72 @@
+name = "Teams parameter test"
+description = ""
+
+icon {
+    color = "#25D284"
+    id = "user-friends"
+}
+
+parameter "tpt_Teams" {
+    display_settings = {
+        Octopus.ControlType = "Teams"
+    }
+    help_text = "Teams for approval"
+    label = "Teams"
+}
+
+parameter "tpt_WorkerPool" {
+    display_settings = {
+        Octopus.ControlType = "WorkerPool"
+    }
+    help_text = ""
+    label = ""
+}
+
+parameter "tpt_AzureAccount" {
+    display_settings = {
+        Octopus.ControlType = "AzureAccount"
+    }
+    help_text = ""
+    label = ""
+}
+
+step "manual-intervention-required" {
+    name = "Manual Intervention Required"
+
+    action {
+        action_type = "Octopus.Manual"
+        properties = {
+            Octopus.Action.Manual.BlockConcurrentDeployments = "False"
+            Octopus.Action.Manual.Instructions = "Pls approve"
+            Octopus.Action.Manual.ResponsibleTeamIds = "#{tpt_Teams}"
+        }
+        worker_pool_variable = ""
+    }
+}
+
+step "apply-a-terraform-template" {
+    name = "Apply a Terraform template"
+
+    action {
+        action_type = "Octopus.TerraformApply"
+        properties = {
+            Octopus.Action.AzureAccount.Variable = "#{tpt_AzureAccount}"
+            Octopus.Action.GoogleCloud.ImpersonateServiceAccount = "False"
+            Octopus.Action.GoogleCloud.UseVMServiceAccount = "True"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Terraform.AllowPluginDownloads = "True"
+            Octopus.Action.Terraform.AzureAccount = "True"
+            Octopus.Action.Terraform.GoogleCloudAccount = "False"
+            Octopus.Action.Terraform.ManagedAccount = "None"
+            Octopus.Action.Terraform.PlanJsonOutput = "False"
+            Octopus.Action.Terraform.RunAutomaticFileSubstitution = "True"
+            Octopus.Action.Terraform.Template = <<-EOT
+                main {
+                  
+                }
+                EOT
+            Octopus.Action.Terraform.TemplateParameters = "{}"
+        }
+        worker_pool_variable = "#{tpt_WorkerPool}"
+    }
+}
